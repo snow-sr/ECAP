@@ -2,10 +2,44 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "mongodb"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
+}
+
+model input {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  label     String
+  for       String
+  type      String
+  maxLength Int     @default(128)
+  minLength Int     @default(1)
+  required  Boolean @default(true)
+  event     event?  @relation(fields: [eventId], references: [id])
+  eventId   String? @db.ObjectId
+}
+
+model event {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  description    String
+  createdAt      DateTime @default(now())
+  media          String? // URL to the media
+  hasCertificate Boolean  @default(false)
+  isPublished    Boolean  @default(false)
+  form           input[]
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String
+  password  String
+  cpf       String
+  birth     DateTime
+  createdAt DateTime @default(now())
+  isAdmin   Boolean  @default(false)
 }
