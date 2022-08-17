@@ -10,36 +10,48 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model input {
-  id        String  @id @default(auto()) @map("_id") @db.ObjectId
-  label     String
-  for       String
-  type      String
-  maxLength Int     @default(128)
-  minLength Int     @default(1)
-  required  Boolean @default(true)
-  event     event?  @relation(fields: [eventId], references: [id])
-  eventId   String? @db.ObjectId
-}
-
-model event {
+model User {
   id             String   @id @default(auto()) @map("_id") @db.ObjectId
   name           String
-  description    String
+  email          String
+  role           Role
   createdAt      DateTime @default(now())
-  media          String? // URL to the media
-  hasCertificate Boolean  @default(false)
-  isPublished    Boolean  @default(false)
-  form           input[]
+  updatedAt      DateTime @updatedAt
+  OwnedCourses   Course[]
+  inCourse       Course[]
+  OwnedCoursesId Course[]
+  InCourseId     Course?  @relation(fields: [courseId], references: [id])
+  courseId       String?  @db.ObjectId
+  Course         Course[]
+
+  Course Course[]
+  Course Course?  @relation(fields: [courseId], references: [id])
 }
 
-model User {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  email     String
-  password  String
-  cpf       String
-  birth     DateTime
-  createdAt DateTime @default(now())
-  isAdmin   Boolean  @default(false)
+model Course {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  name             String
+  description      String
+  media            String?
+  subscriptionForm Json
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  Owner            User     @relation(name: "Ownership", fields: [ownerid], references: [id])
+  ownerid          String   @map("ownerid")
+  students         User[]   @relation(name: "Course", fields: [studentsid], references: [id])
+  studentsid       String   @map("studentsid")
+  User             User?    @relation(fields: [userId], references: [id])
+  userId           String?  @db.ObjectId
+}
+
+model Input {
+  id   String  @id @default(auto()) @map("_id") @db.ObjectId
+  name String
+  type String
+  icon String?
+}
+
+enum Role {
+  ADMIN
+  USER
 }
